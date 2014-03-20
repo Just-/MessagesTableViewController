@@ -68,7 +68,7 @@
         inputFieldBack.backgroundColor = [UIColor clearColor];
         [self addSubview:inputFieldBack];
     }
-    else {
+    else if (style == JSMessageInputViewStyleFlat) {
         _textView.frame = CGRectMake(4.0f, 4.5f, width, height);
         _textView.backgroundColor = [UIColor clearColor];
         _textView.layer.borderColor = [UIColor colorWithWhite:0.8f alpha:1.0f].CGColor;
@@ -77,6 +77,22 @@
         
         self.image = [[UIImage imageNamed:@"input-bar-flat"] resizableImageWithCapInsets:UIEdgeInsetsMake(2.0f, 0.0f, 0.0f, 0.0f)
                                                                             resizingMode:UIImageResizingModeStretch];
+    } else if (style == JSMessageInputViewStylePhotoAttach) {
+      width = self.frame.size.width - sendButtonWidth - 40;
+      self.attachButton = [[UIButton alloc] initWithFrame:CGRectInset(CGRectMake(0, 0, 40, height), 5, 5)];
+      self.attachButton.adjustsImageWhenHighlighted = YES;
+      [self.attachButton setImage:[UIImage imageNamed:@"paper_clip"] forState:UIControlStateNormal];
+      [self.attachButton setTintColor:[UIColor js_bubbleBlueColor]];
+      [self addSubview:self.attachButton];
+                                                                       
+      _textView.frame = CGRectMake(44.0f, 4.5f, width, height - 4);
+      _textView.backgroundColor = [UIColor clearColor];
+      _textView.layer.borderColor = [UIColor colorWithWhite:0.8f alpha:1.0f].CGColor;
+      _textView.layer.borderWidth = 0.65f;
+      _textView.layer.cornerRadius = 6.0f;
+      
+      self.image = [[UIImage imageNamed:@"input-bar-flat"] resizableImageWithCapInsets:UIEdgeInsetsMake(2.0f, 0.0f, 0.0f, 0.0f)
+                                                                          resizingMode:UIImageResizingModeStretch];
     }
 }
 

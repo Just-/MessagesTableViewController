@@ -21,6 +21,7 @@
 #import "JSBubbleImageViewFactory.h"
 #import "JSMessageSoundEffect.h"
 #import "UIColor+JSMessagesView.h"
+#import "JSMessageWidgetData.h"
 
 /**
  *  The delegate of a `JSMessagesViewController` must adopt the `JSMessagesViewDelegate` protocol.
@@ -116,6 +117,18 @@
  *  @return A string specifying the cell reuse identifier for the row at indexPath.
  */
 - (NSString *)customCellIdentifierForRowAtIndexPath:(NSIndexPath *)indexPath;
+
+/**
+ *  Asks the delegate for widget frame.
+ *
+ *  @return A constant describing the widget frame.
+ */
+-(CGRect)widgetFrameForMessage:(id<JSMessageWidgetData, JSMessageData>)message atIndexPath:(NSIndexPath *)indexPath;
+
+/**
+ * You should react on attach here
+ */
+-(void)willAttach;
 
 @end
 

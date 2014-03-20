@@ -26,7 +26,11 @@ typedef NS_ENUM(NSUInteger, JSMessageInputViewStyle) {
     /**
      *  An input view style that has the appearance as seen in iOS 7 and later.
      */
-    JSMessageInputViewStyleFlat
+    JSMessageInputViewStyleFlat,
+    /**
+     *  An input view style that allows to attach photos and widgets.
+     */
+    JSMessageInputViewStylePhotoAttach
 };
 
 
@@ -51,6 +55,14 @@ typedef NS_ENUM(NSUInteger, JSMessageInputViewStyle) {
  *  @see JSMessageInputViewStyle.
  */
 @property (weak, nonatomic) UIButton *sendButton;
+
+/**
+ *  The attach button for the input view.
+ *  @see JSMessageInputViewStyle.
+ */
+#warning make it weak
+@property (strong, nonatomic) UIButton *attachButton;
+
 
 #pragma mark - Initialization
 

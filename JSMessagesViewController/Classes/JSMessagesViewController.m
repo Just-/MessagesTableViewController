@@ -15,6 +15,11 @@
 #import "JSMessagesViewController.h"
 #import "JSMessageTextView.h"
 #import "NSString+JSMessagesView.h"
+#import "JSMessageWidgetData.h"
+#import "JSBubbleWidgetCell.h"
+#import "JSMessageWidgetData.h"
+#warning set a dependency in podspec
+#import <AFNetworking/UIImageView+AFNetworking.h>
 
 @interface JSMessagesViewController () <JSDismissiveTextViewDelegate>
 
@@ -74,7 +79,7 @@
                                    self.view.frame.size.height - inputViewHeight,
                                    self.view.frame.size.width,
                                    inputViewHeight);
-    
+  
     BOOL allowsPan = YES;
     if ([self.delegate respondsToSelector:@selector(allowsPanToDismissKeyboard)]) {
         allowsPan = [self.delegate allowsPanToDismissKeyboard];
@@ -96,7 +101,12 @@
         UIButton *sendButton = [self.delegate sendButtonForInputView];
         [inputView setSendButton:sendButton];
     }
-    
+  
+    if (inputView.attachButton) {
+      inputView.attachButton.enabled = YES;
+      [inputView.attachButton addTarget:self action:@selector(attachPressed:) forControlEvents:UIControlEventTouchUpInside];
+    }
+  
     inputView.sendButton.enabled = NO;
     [inputView.sendButton addTarget:self
                              action:@selector(sendPressed:)
@@ -183,6 +193,13 @@
 
 #pragma mark - Actions
 
+- (void)attachPressed:(UIButton *)sender
+{
+  if (self.delegate && [self.delegate respondsToSelector:@selector(willAttach)]) {
+    [self.delegate willAttach];
+  }
+}
+
 - (void)sendPressed:(UIButton *)sender
 {
     [self.delegate didSendText:[self.messageInputView.textView.text js_stringByTrimingWhitespace]
@@ -233,19 +250,45 @@
     }
     
     JSBubbleMessageCell *cell = (JSBubbleMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    
+  
+    id<JSMessageData, JSMessageWidgetData> widgetData;
+    if ([message conformsToProtocol:@protocol(JSMessageWidgetData)]) widgetData = (id<JSMessageWidgetData>) message;
+  
     if (!cell) {
+      if (widgetData) {
+        // get widget frame from delegate if it responds or ask bubble widget cell
+        CGRect widgetFrame = [self.delegate respondsToSelector:@selector(widgetFrameForMessage:atIndexPath:)] ?
+        [self.delegate widgetFrameForMessage:widgetData atIndexPath:indexPath] :
+        CGRectMake(0, 0, CGRectGetWidth(self.tableView.frame), [JSBubbleWidgetCell neededHeightForBubbleMessageCellWithMessage:message displaysAvatar:NO displaysTimestamp:NO]);
+        
+        cell = [[JSBubbleWidgetCell alloc] initWithBubbleType:type
+                                                        frame:widgetFrame
+                                              bubbleImageView:bubbleImageView
+                                                       widget:widgetData
+                                              reuseIdentifier:CellIdentifier];
+      } else {
         cell = [[JSBubbleMessageCell alloc] initWithBubbleType:type
                                                bubbleImageView:bubbleImageView
                                                        message:message
                                              displaysTimestamp:displayTimestamp
                                                      hasAvatar:avatar != nil
                                                reuseIdentifier:CellIdentifier];
+      }
     }
-    
-    [cell setMessage:message];
-    [cell setAvatarImageView:avatar];
+  
+    if (!widgetData) [cell setMessage:message];
+      
+    if (avatar) [cell setAvatarImageView:avatar];
     [cell setBackgroundColor:tableView.backgroundColor];
+  
+    if ([cell isKindOfClass:[JSBubbleWidgetCell class]] && widgetData) {
+      JSBubbleWidgetCell* widgetCell = (JSBubbleWidgetCell*) cell;
+      NSNumberFormatter* numberFormatter = [NSNumberFormatter new];
+      numberFormatter.currencySymbol = @"$";
+      numberFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
+      widgetCell.nameField.text = [NSString stringWithFormat:@"%@ за %@", [widgetData text], [numberFormatter stringFromNumber:[widgetData price]]];
+      [widgetCell.image setImageWithURL:[widgetData imageUrl]];
+    }
 	
     if ([self.delegate respondsToSelector:@selector(configureCell:atIndexPath:)]) {
         [self.delegate configureCell:cell atIndexPath:indexPath];
@@ -255,9 +298,12 @@
 }
 
 #pragma mark - Table view delegate
+  
+
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
     id<JSMessageData> message = [self.dataSource messageForRowAtIndexPath:indexPath];
     UIImageView *avatar = [self.dataSource avatarImageViewForRowAtIndexPath:indexPath sender:[message sender]];
     
@@ -265,10 +311,18 @@
     if ([self.delegate respondsToSelector:@selector(shouldDisplayTimestampForRowAtIndexPath:)]) {
         displayTimestamp = [self.delegate shouldDisplayTimestampForRowAtIndexPath:indexPath];
     }
-    
-    return [JSBubbleMessageCell neededHeightForBubbleMessageCellWithMessage:message
-                                                             displaysAvatar:avatar != nil
-                                                          displaysTimestamp:displayTimestamp];
+  
+    if ([message conformsToProtocol:@protocol(JSMessageWidgetData)]) {
+      if ([self.delegate respondsToSelector:@selector(widgetFrameForMessage:atIndexPath:)]) {
+        return CGRectGetHeight([self.delegate widgetFrameForMessage:message atIndexPath:indexPath]);
+      } else {
+        return [JSBubbleWidgetCell neededHeightForBubbleMessageCellWithMessage:message displaysAvatar:NO displaysTimestamp:NO];
+      }
+    } else {
+      return [JSBubbleMessageCell neededHeightForBubbleMessageCellWithMessage:message
+                                                               displaysAvatar:avatar != nil
+                                                            displaysTimestamp:displayTimestamp];
+    }
 }
 
 #pragma mark - Messages view controller
