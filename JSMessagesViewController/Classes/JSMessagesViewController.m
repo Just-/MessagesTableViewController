@@ -287,7 +287,7 @@
       numberFormatter.currencySymbol = @"$";
       numberFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
       widgetCell.nameField.text = [NSString stringWithFormat:@"%@ за %@", [widgetData text], [numberFormatter stringFromNumber:[widgetData price]]];
-      [widgetCell.image setImageWithURL:[widgetData imageUrl]];
+      [widgetCell.image setImageWithURL:[widgetData imageUrl] placeholderImage:[UIImage imageNamed:@"loader"]];
     }
 	
     if ([self.delegate respondsToSelector:@selector(configureCell:atIndexPath:)]) {
