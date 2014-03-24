@@ -521,11 +521,12 @@
     CGRect keyboardRect = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
 	UIViewAnimationCurve curve = [[notification.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] integerValue];
 	double duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    
+  
     [UIView animateWithDuration:duration
                           delay:0.0
-                        options:[self animationOptionsForCurve:curve]
+                        options:0
                      animations:^{
+                        [UIView setAnimationCurve:curve];
                          CGFloat keyboardY = [self.view convertRect:keyboardRect fromView:nil].origin.y;
                          
                          CGRect inputViewFrame = self.messageInputView.frame;
