@@ -14,7 +14,7 @@
 @interface JSMessageWithWidget : JSMessage <JSMessageWidgetData>
 
 @property (strong, nonatomic) NSURL* imageUrl;
-@property (assign, nonatomic) WidgetType type;
+@property (assign, nonatomic) WidgetType widgetType;
 @property (strong, nonatomic) NSNumber* price;
 @property (copy, nonatomic) OnAction actionBlock;
 

@@ -22,7 +22,7 @@ typedef void (^OnAction)(WidgetType type);
 
 -(NSNumber*)price;
 -(NSURL*) imageUrl;
--(WidgetType) type;
+-(WidgetType) widgetType;
 -(OnAction) actionBlock;
 
 @end

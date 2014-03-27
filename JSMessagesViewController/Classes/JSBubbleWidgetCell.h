@@ -14,6 +14,7 @@
 @property (strong, nonatomic) id<JSMessageWidgetData, JSMessageData> widget;
 @property (strong, nonatomic) UIImageView* image;
 @property (strong, nonatomic) UILabel* nameField;
+@property (strong, nonatomic) UIButton* actionButton;
 
 - (instancetype)initWithBubbleType:(JSBubbleMessageType)type
                              frame:(CGRect)frame

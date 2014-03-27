@@ -42,6 +42,7 @@
   self.nameField.textAlignment = NSTextAlignmentCenter;
   self.nameField.textColor = [UIColor whiteColor];
   self.nameField.font = [UIFont systemFontOfSize:15.5f];
+  [self.contentView addSubview:self.nameField];
   
   // height of cell - height of label - height of action button
   CGRect imageFrame = CGRectMake(0, CGRectGetMaxY(self.nameField.frame) + 5, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame) - CGRectGetHeight(self.nameField.frame) - 30 - 5);
@@ -50,20 +51,19 @@
   self.image.autoresizingMask = UIViewAutoresizingNone;
   self.image.contentMode = UIViewContentModeScaleAspectFit;
   
-  UIButton* actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
-  actionButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-  [actionButton setTitle:@"Отложить" forState:UIControlStateNormal];
-  [actionButton setTitleColor:[UIColor colorWithRed:181.0 / 255.0 green:117.0 / 255.0 blue:48.0 / 255.0 alpha:1.0] forState:UIControlStateNormal];
-  actionButton.frame = CGRectMake(0, CGRectGetMaxY(self.image.frame), CGRectGetWidth(self.frame), 30);
-  [actionButton addTarget:self action:@selector(onAction:) forControlEvents:UIControlEventTouchUpInside];
+  self.actionButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  self.actionButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+  [self.actionButton setTitle:@"Отложить" forState:UIControlStateNormal];
+  [self.actionButton setTitleColor:[UIColor colorWithRed:181.0 / 255.0 green:117.0 / 255.0 blue:48.0 / 255.0 alpha:1.0] forState:UIControlStateNormal];
+  self.actionButton.frame = CGRectMake(0, CGRectGetMaxY(self.image.frame), CGRectGetWidth(self.frame), 30);
+  [self.actionButton addTarget:self action:@selector(onAction:) forControlEvents:UIControlEventTouchUpInside];
+  [self.contentView addSubview:self.actionButton];
   
-  if ([widget type] != JustPhoto) [self.contentView addSubview:self.nameField];
   [self.contentView addSubview:self.image];
-  if ([widget type] != JustPhoto) [self.contentView addSubview:actionButton];
 }
 
 -(void)onAction:(id)sender {
-  if ([self.widget actionBlock]) [self.widget actionBlock]([self.widget type]);
+  if ([self.widget actionBlock]) [self.widget actionBlock]([self.widget widgetType]);
 }
 
 

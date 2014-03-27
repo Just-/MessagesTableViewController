@@ -20,7 +20,7 @@
 {
   self = [super initWithText:text sender:sender date:date];
   if (self) {
-    self.type = type;
+    self.widgetType = type;
     self.actionBlock = actionBlock;
     self.imageUrl = imageUrl;
     self.price = price;
@@ -32,12 +32,11 @@
                       sender:(NSString *)sender
                         date:(NSDate *)date
 {
-  self = [super initWithText:@"" sender:sender date:date];
-  if (self) {
-    self.type = JustPhoto;
-    self.imageUrl = imageUrl;
-  }
-  return self;
+  return [self initWithText:@"" sender:sender date:date type:JustPhoto price:nil imageUrl:imageUrl onAction:nil];
+}
+
+-(NSString *)description {
+  return [NSString stringWithFormat:@"{(%d) (%@) (%@) (%@)}", self.widgetType, self.text, self.price, self.imageUrl];
 }
 
 

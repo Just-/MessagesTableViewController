@@ -283,11 +283,29 @@
   
     if ([cell isKindOfClass:[JSBubbleWidgetCell class]] && widgetData) {
       JSBubbleWidgetCell* widgetCell = (JSBubbleWidgetCell*) cell;
-      NSNumberFormatter* numberFormatter = [NSNumberFormatter new];
-      numberFormatter.currencySymbol = @"$";
-      numberFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
-      widgetCell.nameField.text = [NSString stringWithFormat:@"%@ за %@", [widgetData text], [numberFormatter stringFromNumber:[widgetData price]]];
-      [widgetCell.image setImageWithURL:[widgetData imageUrl] placeholderImage:[UIImage imageNamed:@"loader"]];
+      NSURLRequest* req = [NSURLRequest requestWithURL:[widgetData imageUrl]];
+      
+      UIActivityIndicatorView* loader = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+      [widgetCell addSubview:loader];
+      loader.center = [widgetCell convertPoint:widgetCell.center fromView:nil];
+      [loader startAnimating];
+      
+      [widgetCell.image setImageWithURLRequest:req placeholderImage:[UIImage new] success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+        [loader removeFromSuperview];
+        [widgetCell.image setImage:image];
+      } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+        [loader removeFromSuperview];
+      }];
+      
+      if ([widgetData price] && [widgetData text] && ![[widgetData text] isEqualToString:@""]) {
+        NSNumberFormatter* numberFormatter = [NSNumberFormatter new];
+        numberFormatter.currencySymbol = @"$";
+        numberFormatter.numberStyle = NSNumberFormatterCurrencyStyle;
+        widgetCell.nameField.text = [NSString stringWithFormat:@"%@ за %@", [widgetData text], [numberFormatter stringFromNumber:[widgetData price]]];
+      } else {
+        widgetCell.nameField.hidden = YES;
+        widgetCell.actionButton.hidden = YES;
+      }
     }
 	
     if ([self.delegate respondsToSelector:@selector(configureCell:atIndexPath:)]) {
